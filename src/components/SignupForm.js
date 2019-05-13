@@ -1,5 +1,5 @@
 import React from 'react';
-import { Query, Mutation } from 'react-apollo';
+import { Mutation } from 'react-apollo';
 import AuthForm from './AuthForm';
 import mutation from '../mutations/Signup';
 // import query from '../queries/CurrentUser';
