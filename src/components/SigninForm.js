@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mutation, Query } from 'react-apollo';
+import { Mutation, ApolloConsumer } from 'react-apollo';
 import AuthForm from './AuthForm';
 import mutation from '../mutations/Signin';
 import query from '../queries/me';
@@ -18,12 +18,14 @@ class SigninForm extends React.Component {
   //   }
   // }
 
-  onSubmit = (signIn, refetch) => ({ email, password }) => {
+  onSubmit = (signIn, client) => ({ email, password }) => {
     signIn({ variables: { email, password } })
       .then(res => {
-        localStorage.setItem('token', res.data.login.token);
-        refetch();
         this.props.history.goBack();
+        localStorage.setItem('token', res.data.login.token);
+        client.query({
+          query,
+        });
       })
       .catch(err => {
         if (err.graphQLErrors) {
@@ -37,21 +39,21 @@ class SigninForm extends React.Component {
 
   render() {
     return (
-      <Query query={query}>
-        {({ refetch }) => (
-          <Mutation mutation={mutation}>
-            {(signIn, { data }) => (
-              <div>
-                <h3>Sign In</h3>
+      <Mutation mutation={mutation} refetchQueries={[{ query }]}>
+        {(signIn, { data }) => (
+          <div>
+            <h3>Sign In</h3>
+            <ApolloConsumer>
+              {client => (
                 <AuthForm
                   errors={this.state.errors}
-                  onSubmit={this.onSubmit(signIn, refetch)}
+                  onSubmit={this.onSubmit(signIn, client)}
                 />
-              </div>
-            )}
-          </Mutation>
+              )}
+            </ApolloConsumer>
+          </div>
         )}
-      </Query>
+      </Mutation>
     );
   }
 }
